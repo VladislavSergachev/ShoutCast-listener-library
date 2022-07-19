@@ -2,7 +2,7 @@ using SCLL;
 using Xunit;
 using System.Text;
 
-namespace QueueStreamTests
+namespace ScllTests
 {
    public class QueueStreamTests
     {
