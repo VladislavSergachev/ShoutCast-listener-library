@@ -17,7 +17,7 @@ namespace SCLL
 
         public virtual void Process()
         {
-            _lastMessage = _parser.ParseNext();
+            _lastMessage = _parser.Parse();
             _mp3Stream = new QueueStream();
 
             if (_lastMessage.type != MessageType.DataMP3)
