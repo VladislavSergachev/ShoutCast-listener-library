@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCLL", "SCLL.csproj", "{B42
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "netTest", "..\streamTest\netTest.csproj", "{EE81E74E-1DE4-41E4-99F2-CF26B5EDFADA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QueueStreamTests", "SCLL.Tests\QueueStreamTests.csproj", "{EAC654C3-D5BF-406F-86A6-EA3EF16E7DEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScllTests", "SCLL.Tests\ScllTests.csproj", "{EAC654C3-D5BF-406F-86A6-EA3EF16E7DEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
