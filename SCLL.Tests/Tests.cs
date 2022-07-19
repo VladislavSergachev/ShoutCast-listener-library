@@ -4,7 +4,7 @@ using System.Text;
 
 namespace QueueStreamTests
 {
-   public class prog
+   public class QueueStreamTests
     {
         static QueueStream stream;
         

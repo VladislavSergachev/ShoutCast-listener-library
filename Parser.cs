@@ -25,9 +25,10 @@ namespace SCLL
 
             _uvoxStream.Read(message.Payload);
 
-            _uvoxStream.ReadByte();
             return message;
         }
+
+        
 
         public Stream UltravoxStream
         {
