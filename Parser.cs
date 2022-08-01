@@ -9,12 +9,10 @@ namespace SCLL
 
         public Parser(Stream stream) => _uvoxStream = stream;
 
-        public Message ParseNext()
+        public Message Parse()
         {
             Message message = new Message();
             byte[] msgHeader = new byte[5];
-
-            _uvoxStream.ReadByte();
 
             _uvoxStream.Read(msgHeader);
 
@@ -28,7 +26,17 @@ namespace SCLL
             return message;
         }
 
-        
+        public void FindNext()
+        {
+            bool isSyncByte = false;
+
+            while (!isSyncByte)
+            {
+                int orderedByte = _uvoxStream.ReadByte();      
+                isSyncByte = (orderedByte == Message.ULTRAVOX_SYNC_BYTE) ? true : false;
+            }
+        }
+
 
         public Stream UltravoxStream
         {

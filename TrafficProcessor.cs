@@ -13,12 +13,13 @@ namespace SCLL
         public TrafficProcessor(Stream uvoxStream)
         {
             _parser = new Parser(uvoxStream);
+            _mp3Stream = new QueueStream();
         }
 
         public virtual void Process()
         {
-            _lastMessage = _parser.ParseNext();
-            _mp3Stream = new QueueStream();
+            _parser.FindNext();
+            _lastMessage = _parser.Parse();
 
             if (_lastMessage.type != MessageType.DataMP3)
                 NonSoundStreamReceived(this, new MetadataReceivedArgs(_lastMessage.type, _lastMessage.Payload));

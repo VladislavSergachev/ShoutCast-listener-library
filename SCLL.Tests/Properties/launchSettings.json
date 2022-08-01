@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ScllTests": {
+      "commandName": "Project",
+      "workingDirectory": "E:\\Developement\\ShoutCast-listener-library\\SCLL.Tests\\uvoxInput"
+    }
+  }
+}
