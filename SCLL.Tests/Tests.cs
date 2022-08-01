@@ -1,8 +1,9 @@
-using SCLL;
+ï»¿using SCLL;
 using Xunit;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ScllTests
 {
@@ -46,7 +47,7 @@ namespace ScllTests
         FileStream bareUvoxData, corruptedUvoxData;
 
         [Fact]
-        public void ShouldGetThreeCorrectMessageûFromBare()
+        public void ShouldGetThreeCorrectMessagesFromBare()
         {
             int correctMessages = 0;
             
@@ -57,10 +58,7 @@ namespace ScllTests
 
             for (int m = 0; m < 3; m++)
             {
-                int b = bareUvoxData.ReadByte();
-                if (b != Message.ULTRAVOX_SYNC_BYTE)
-                    parser.FindNext();
-
+                parser.FindNext();
                 messages.Add(parser.Parse());
             }
 
@@ -98,5 +96,4 @@ namespace ScllTests
 
 
     }
-
 }
