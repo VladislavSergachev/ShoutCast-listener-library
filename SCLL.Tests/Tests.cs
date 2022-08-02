@@ -54,7 +54,7 @@ namespace ScllTests
             List<Message> messages = new List<Message>();
             bareUvoxData = new FileStream("bareUvox.dump", FileMode.Open, FileAccess.Read); // this file should contain 3 ordered Uvox messages (type XmlShoutcast, payload 10 bytes of any content)
 
-            Parser parser = new Parser(bareUvoxData);
+            MessageParser parser = new MessageParser(bareUvoxData);
 
             for (int m = 0; m < 3; m++)
             {
@@ -78,7 +78,7 @@ namespace ScllTests
             List<Message> messages = new List<Message>();
             corruptedUvoxData = new FileStream("corruptedUvox.dump", FileMode.Open, FileAccess.Read); // this file should contain 3 ordered Uvox messages (type XmlShoutcast, payload 10 bytes of any content) with garbage bytes
 
-            Parser parser = new Parser(corruptedUvoxData);
+            MessageParser parser = new MessageParser(corruptedUvoxData);
             
             for(int m = 0; m < 3; m++)
             {
