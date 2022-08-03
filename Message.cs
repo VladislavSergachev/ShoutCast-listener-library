@@ -31,6 +31,12 @@ namespace SCLL
         DataMP3 = 0x7000,
     }
 
+    /// <summary>
+    /// Representing Ultravox-message
+    /// </summary>
+    /// <remarks>
+    /// See <see href="http://wiki.shoutcast.com/wiki/SHOUTcast_2_(Ultravox_2.1)_Protocol_Details#Ultravox_Messages"> for details.
+    /// </remarks>
     public sealed class Message
     {
         public const int ULTRAVOX_SYNC_BYTE = 0x5A;

@@ -17,10 +17,21 @@ using System.IO;
 
 namespace SCLL
 {
+    /// <summary>
+    /// Base class for pasers
+    /// </summary>
+    /// <remarks>
+    /// Implemented by <see cref="MessageParser"/> and <see cref="MetadataParser"/>
+    /// </remarks>
+    /// 
+    /// <typeparam name="ParsingResultType">Type of expected parsing result</typeparam>
 
     public abstract class Parser<ParsingResultType>
     {
         protected Stream inputStream;
+
+        /// <param name="inStream">Stream containing data for parsing</param>
+
         public Parser(Stream inStream)
         {
             inputStream = inStream;
@@ -31,12 +42,23 @@ namespace SCLL
     
     
     
+    /// <summary>
+    /// Ultravox-stream parser
+    /// </summary>
     public sealed class MessageParser : Parser<Message>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream">Stream containing Ultravox-messages</param>
         public MessageParser(Stream stream) : base(stream)
         {
 
         }
+
+        /// <summary>
+        /// Parses current message found by <see cref="FindNext"/>
+        /// </summary>
 
         public override Message Parse()
         {
@@ -55,6 +77,10 @@ namespace SCLL
             return message;
         }
 
+        /// <summary>
+        /// Seeking to next (or first) message in stream. That message should further be parsed with <see cref="Parse"/>
+        /// </summary>
+        
         public void FindNext()
         {
             bool isSyncByte = false;
@@ -62,7 +88,7 @@ namespace SCLL
             while (!isSyncByte)
             {
                 int orderedByte = inputStream.ReadByte();      
-                isSyncByte = (orderedByte == Message.ULTRAVOX_SYNC_BYTE) ? true : false;
+                isSyncByte = (orderedByte == Message.ULTRAVOX_SYNC_BYTE);
             }
         }
 

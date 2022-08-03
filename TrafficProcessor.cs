@@ -17,19 +17,36 @@ using System.IO;
 
 namespace SCLL
 {
+    /// <summary>
+    /// General Ultravox-process unit. Its purposes are to provide MP3 stream and to notify client about received metadata 
+    /// </summary>
+
+
     public class TrafficProcessor
     {
         protected MessageParser _parser;
         protected Message _lastMessage;
         protected QueueStream _mp3Stream;
 
+        /// <summary>
+        /// Raises when received message which type isn`t <see cref="MessageType.DataMP3"/>
+        /// </summary>
+
         public event NonSoundStreamReceivedHandler NonSoundStreamReceived;
+
+
+        /// <param name="uvoxStream">Stream containing Ultravox messages (Ultravox-server response)</param>
 
         public TrafficProcessor(Stream uvoxStream)
         {
             _parser = new MessageParser(uvoxStream);
             _mp3Stream = new QueueStream();
         }
+
+        /// <summary>
+        /// Finds next Ultravox-message in the stream and parses it. If it`s MP3 data <see cref="MP3Stream"/> is appended with this data. 
+        /// In other case <see cref="NonSoundStreamReceived"/> is raised.
+        /// </summary>
 
         public virtual void Process()
         {
@@ -42,12 +59,16 @@ namespace SCLL
                 _mp3Stream.Write(_lastMessage.Payload);
         }
 
+        /// <summary>
+        /// Stream containing MP3 data
+        /// </summary>
+        
         public QueueStream MP3Stream
         {
             get =>
                 _mp3Stream;
         }
-
+        
         public delegate void NonSoundStreamReceivedHandler(
           TrafficProcessor sender,
           MetadataReceivedArgs args);

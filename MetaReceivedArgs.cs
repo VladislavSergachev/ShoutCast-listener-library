@@ -18,6 +18,9 @@ using System.IO;
 
 namespace SCLL
 {
+    /// <summary>
+    /// Contains information about message which has received
+    /// </summary>
     public class MetadataReceivedArgs : EventArgs
     {
         private MessageType _msgType;
