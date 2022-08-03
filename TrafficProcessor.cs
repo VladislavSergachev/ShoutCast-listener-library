@@ -13,6 +13,8 @@
 //limitations under the License.
 
 
+//TODO: Implement metadata synchronization 
+
 using System.IO;
 
 namespace SCLL
