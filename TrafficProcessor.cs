@@ -24,11 +24,10 @@ namespace SCLL
     /// </summary>
 
 
-    public class TrafficProcessor
+    public class TrafficProcessor : Processor<Stream, QueueStream>
     {
         protected MessageParser _parser;
         protected Message _lastMessage;
-        protected QueueStream _mp3Stream;
 
         /// <summary>
         /// Raises when received message which type isn`t <see cref="MessageType.DataMP3"/>
@@ -39,10 +38,10 @@ namespace SCLL
 
         /// <param name="uvoxStream">Stream containing Ultravox messages (Ultravox-server response)</param>
 
-        public TrafficProcessor(Stream uvoxStream)
+        public TrafficProcessor(Stream uvoxStream) : base(uvoxStream)
         {
-            _parser = new MessageParser(uvoxStream);
-            _mp3Stream = new QueueStream();
+            _parser = new MessageParser(input);
+            output = new QueueStream();
         }
 
         /// <summary>
@@ -50,7 +49,7 @@ namespace SCLL
         /// In other case <see cref="NonSoundStreamReceived"/> is raised.
         /// </summary>
 
-        public virtual void Process()
+        public override void Process()
         {
             _parser.FindNext();
             _lastMessage = _parser.Parse();
@@ -58,22 +57,36 @@ namespace SCLL
             if (_lastMessage.type != MessageType.DataMP3)
                 NonSoundStreamReceived(this, new MetadataReceivedArgs(_lastMessage.type, _lastMessage.Payload));
             else
-                _mp3Stream.Write(_lastMessage.Payload);
-        }
-
-        /// <summary>
-        /// Stream containing MP3 data
-        /// </summary>
-        
-        public QueueStream MP3Stream
-        {
-            get =>
-                _mp3Stream;
+                input.Write(_lastMessage.Payload);
         }
         
         public delegate void NonSoundStreamReceivedHandler(
           TrafficProcessor sender,
           MetadataReceivedArgs args);
     }
+
+    public class MetadataProcessor : Processor<Stream, MetaDataPackage>
+    {
+        
+    }
+
+    public abstract class Processor<TInput, TOutput>
+    {
+        protected TInput input;
+        protected TOutput output;
+
+        public Processor(TInput inputData)
+        {
+            this.input = inputData;
+        }
+
+        public abstract void Process();
+
+        public TOutput Output => output;
+
+        public delegate void OnDelegateHandler(Processor<TInput, TOutput> sender, DelegationEventArgs<Stream> args);
+        public event OnDelegateHandler Delegated;
+    }
+
 
 }
