@@ -15,6 +15,8 @@
 
 //TODO: Implement metadata synchronization 
 
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SCLL
@@ -22,7 +24,6 @@ namespace SCLL
     /// <summary>
     /// General Ultravox-process unit. Its purposes are to provide MP3 stream and to notify client about received metadata 
     /// </summary>
-
 
     public class TrafficProcessor : Processor<Stream, QueueStream>
     {
@@ -55,7 +56,7 @@ namespace SCLL
             _lastMessage = _parser.Parse();
 
             if (_lastMessage.type != MessageType.DataMP3)
-                NonSoundStreamReceived(this, new MetadataReceivedArgs(_lastMessage.type, _lastMessage.Payload));
+                InvokeDelegated(this, new DelegationEventArgs<Stream>() { Data = new MemoryStream(_lastMessage.Payload) });
             else
                 input.Write(_lastMessage.Payload);
         }
@@ -67,7 +68,17 @@ namespace SCLL
 
     public class MetadataProcessor : Processor<Stream, MetaDataPackage>
     {
-        
+        private Dictionary<UInt16, MetaDataPackage> packages;
+
+        public MetadataProcessor(Stream metadataPayload) : base(metadataPayload)
+        {
+            packages = new Dictionary<UInt16, MetaDataPackage>();
+        }
+
+        public override void Process()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public abstract class Processor<TInput, TOutput>
@@ -82,10 +93,23 @@ namespace SCLL
 
         public abstract void Process();
 
-        public TOutput Output => output;
+        protected void InvokeDelegated(Processor<TInput, TOutput> sender, DelegationEventArgs<Stream> args) => 
+            Delegated?.Invoke(sender, args);
 
-        public delegate void OnDelegateHandler(Processor<TInput, TOutput> sender, DelegationEventArgs<Stream> args);
-        public event OnDelegateHandler Delegated;
+
+        public TOutput Output
+        {
+            get =>
+                output;
+        }
+        
+        public TInput Input
+        {
+            set => 
+                input = value;
+        }
+
+        public event EventHandler < DelegationEventArgs<Stream> > Delegated;
     }
 
 
