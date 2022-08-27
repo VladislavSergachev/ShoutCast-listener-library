@@ -12,6 +12,7 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
+using System;
 using System.IO;
 
 
@@ -28,13 +29,13 @@ namespace SCLL
 
     public abstract class Parser<ParsingResultType>
     {
-        protected Stream inputStream;
+        public Stream InputStream;
 
         /// <param name="inStream">Stream containing data for parsing</param>
 
         public Parser(Stream inStream)
         {
-            inputStream = inStream;
+            InputStream = inStream;
         }
 
         public abstract ParsingResultType Parse();
@@ -65,14 +66,17 @@ namespace SCLL
             Message message = new Message();
             byte[] msgHeader = new byte[5];
 
-            inputStream.Read(msgHeader);
+            InputStream.Read(msgHeader);
 
             message.ResQos = msgHeader[0];
             message.type = (MessageType)((msgHeader[1] << 8) + msgHeader[2]);
             message.PayloadLength = (ushort)((msgHeader[3] << 8) + msgHeader[4]);
-            message.Payload = new byte[message.PayloadLength];
+            message.Payload = new MemoryStream(message.PayloadLength);
 
-            inputStream.Read(message.Payload);
+            byte[] buffer = new byte[message.PayloadLength];
+            
+            InputStream.Read(buffer);
+            message.Payload.Write(buffer);
 
             return message;
         }
@@ -87,7 +91,7 @@ namespace SCLL
 
             while (!isSyncByte)
             {
-                int orderedByte = inputStream.ReadByte();      
+                int orderedByte = InputStream.ReadByte();      
                 isSyncByte = (orderedByte == Message.ULTRAVOX_SYNC_BYTE);
             }
         }
@@ -95,11 +99,28 @@ namespace SCLL
 
         public Stream UltravoxStream
         {
-            set => inputStream = value;
+            set => InputStream = value;
         }
     }
-    public sealed class MetadataParser
+    public sealed class MetadataParser : Parser<MetadataPackage>
     {
+        public MetadataParser(Stream input) : base(input)
+        {
+            InputStream = input;
+        }
 
+        public override MetadataPackage Parse()
+        {
+            UInt16 ID, Span, Order;
+            byte[] packageInfo = new byte[6];
+
+            InputStream.Read(packageInfo);
+
+            ID = (UInt16) ( (packageInfo[0] << 8) + packageInfo[1] );
+            Span = (UInt16) ( (packageInfo[2] << 8) + packageInfo[3] );
+            Order = (UInt16) ( (packageInfo[4] << 8) + packageInfo[5] );
+
+            return new MetadataPackage(ID, Span, Order);
+        }
     }
 }

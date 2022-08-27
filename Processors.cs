@@ -25,91 +25,70 @@ namespace SCLL
     /// General Ultravox-process unit. Its purposes are to provide MP3 stream and to notify client about received metadata 
     /// </summary>
 
-    public class TrafficProcessor : Processor<Stream, QueueStream>
+    public class AudioDataProcessor : Processor
     {
-        protected MessageParser _parser;
-        protected Message _lastMessage;
+        /// <param name="audioPayload">Stream containing Ultravox messages (Ultravox-server response)</param>
 
-        /// <summary>
-        /// Raises when received message which type isn`t <see cref="MessageType.DataMP3"/>
-        /// </summary>
-
-        public event NonSoundStreamReceivedHandler NonSoundStreamReceived;
-
-
-        /// <param name="uvoxStream">Stream containing Ultravox messages (Ultravox-server response)</param>
-
-        public TrafficProcessor(Stream uvoxStream) : base(uvoxStream)
+        public AudioDataProcessor(Stream audioPayload) : base(audioPayload)
         {
-            _parser = new MessageParser(input);
             output = new QueueStream();
         }
 
         /// <summary>
         /// Finds next Ultravox-message in the stream and parses it. If it`s MP3 data <see cref="MP3Stream"/> is appended with this data. 
-        /// In other case <see cref="NonSoundStreamReceived"/> is raised.
+        /// In ....
         /// </summary>
 
         public override void Process()
         {
-            _parser.FindNext();
-            _lastMessage = _parser.Parse();
+            byte[] rawAudioData = new byte[input.Length];
 
-            if (_lastMessage.type != MessageType.DataMP3)
-                InvokeDelegated(this, new DelegationEventArgs<Stream>() { Data = new MemoryStream(_lastMessage.Payload) });
-            else
-                input.Write(_lastMessage.Payload);
+            input.Read(rawAudioData);
+            output.Write(rawAudioData);
         }
-        
-        public delegate void NonSoundStreamReceivedHandler(
-          TrafficProcessor sender,
-          MetadataReceivedArgs args);
     }
 
-    public class MetadataProcessor : Processor<Stream, MetaDataPackage>
+    public class MetadataProcessor : Processor
     {
-        private Dictionary<UInt16, MetaDataPackage> packages;
+        private Dictionary<UInt16, MetadataPackage> packages;
+        private MetadataParser parser;
 
-        public MetadataProcessor(Stream metadataPayload) : base(metadataPayload)
+        public MetadataProcessor(Stream metadataStream) : base(metadataStream)
         {
-            packages = new Dictionary<UInt16, MetaDataPackage>();
+            packages = new Dictionary<UInt16, MetadataPackage>();
+            parser = new MetadataParser(metadataStream);
         }
 
         public override void Process()
         {
-            throw new NotImplementedException();
+            MetadataPackage package = parser.Parse();
         }
     }
 
-    public abstract class Processor<TInput, TOutput>
+    public abstract class Processor
     {
-        protected TInput input;
-        protected TOutput output;
+        protected Stream input;
+        protected Stream  output;
 
-        public Processor(TInput inputData)
+        public Processor(Stream inputData)
         {
             this.input = inputData;
         }
 
         public abstract void Process();
 
-        protected void InvokeDelegated(Processor<TInput, TOutput> sender, DelegationEventArgs<Stream> args) => 
-            Delegated?.Invoke(sender, args);
 
-
-        public TOutput Output
+        public Stream Output
         {
             get =>
                 output;
         }
         
-        public TInput Input
+        public Stream Input
         {
             set => 
                 input = value;
         }
-
-        public event EventHandler < DelegationEventArgs<Stream> > Delegated;
     }
 
 

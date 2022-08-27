@@ -12,6 +12,8 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 
+using System.IO;
+
 namespace SCLL
 {
     public enum MessageType
@@ -44,7 +46,7 @@ namespace SCLL
 
         public byte ResQos;
         public MessageType type;
-        public byte[] Payload;
+        public Stream Payload;
         public ushort PayloadLength;
     }
 }
