@@ -24,9 +24,9 @@ namespace SCLL
     public class MetadataReceivedArgs : EventArgs
     {
         private DataType _msgType;
-        private byte[] _msgPayload;
+        private Stream _msgPayload;
 
-        public MetadataReceivedArgs(DataType msgType, byte[] msgPayload)
+        public MetadataReceivedArgs(DataType msgType, Stream msgPayload)
         {
             _msgType = msgType;
             _msgPayload = msgPayload;
@@ -35,7 +35,7 @@ namespace SCLL
         public Stream MessagePayload
         {
             get =>
-                new MemoryStream(_msgPayload);
+                _msgPayload;
         }
 
         public DataType MessageType

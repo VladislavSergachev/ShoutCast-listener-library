@@ -5,8 +5,6 @@ using System.IO;
 namespace ScllTests
 {
 
-
-
     public class MetadataParserTests
     {
         static byte[] payloadSecondPart = { 0x00, 0x2b, 0x00, 0x02, 0x00, 0x02, 0x7, 0x8, 0x9, 0xA, 0xB, 0XC, 0XD };
@@ -33,10 +31,10 @@ namespace ScllTests
         [Fact]
         public void ShouldReturnCorrectPackage()
         {
-            MetadataPackage template = new MetadataPackage(0x2b, 0x02, 0x02);
+            MetadataPackage template = new MetadataPackage(0x2b, 0x02, 0x02, DataType.XmlShoutcast);
 
-            parser = new MetadataParser(first.Payload);
-            MetadataPackage pkg = parser.Parse();
+            parser = new MetadataParser();
+            MetadataPackage pkg = parser.Parse(first.Payload);
 
             Assert.Equal(template.Span, pkg.Span);
             Assert.Equal(template.Id, pkg.Id);

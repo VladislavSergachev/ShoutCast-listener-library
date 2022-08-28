@@ -13,8 +13,10 @@ namespace SCLL
         public readonly UInt16 Span;
         public readonly UInt16 Order;
 
+        public DataType Type;
+
         
-        public MetadataPackage(UInt16 id, UInt16 span, UInt16 order)
+        public MetadataPackage(UInt16 id, UInt16 span, UInt16 order, DataType type)
         {
             Id = id;
             Span = span;
@@ -28,6 +30,19 @@ namespace SCLL
         {
             Parts.InsertRange(package.Order, package.Parts);
             return (Parts.Count == Span);
+        }
+
+        public Stream ToStream()
+        {
+            Stream result = new MemoryStream();
+            foreach(Stream stream in Parts)
+            {
+                byte[] buffer = new byte[stream.Length];
+                stream.Read(buffer);
+                result.Write(buffer);
+            }
+
+            return result;
         }
     }
 }

@@ -108,7 +108,7 @@ namespace SCLL
             Span = (UInt16) ( (packageInfo[2] << 8) + packageInfo[3] );
             Order = (UInt16) ( (packageInfo[4] << 8) + packageInfo[5] );
 
-            return new MetadataPackage(ID, Span, Order);
+            return new MetadataPackage(ID, Span, Order, DataType.XmlShoutcast);
         }
     }
 }

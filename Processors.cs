@@ -29,7 +29,7 @@ namespace SCLL
     {
         /// <param name="audioPayload">Stream containing Ultravox messages (Ultravox-server response)</param>
 
-        public AudioDataProcessor()
+        public AudioDataProcessor(IDataReceiver receiver) : base(receiver)
         {
             output = new QueueStream();
         }
@@ -45,6 +45,8 @@ namespace SCLL
 
             input.Read(rawAudioData);
             output.Write(rawAudioData);
+
+            receiver.Accept(output, DataType.DataMP3);
         }
     }
 
@@ -53,7 +55,7 @@ namespace SCLL
         private Dictionary<UInt16, MetadataPackage> packages;
         private MetadataParser parser;
 
-        public MetadataProcessor()
+        public MetadataProcessor(IDataReceiver receiver) : base(receiver)
         {
             packages = new Dictionary<UInt16, MetadataPackage>();
             parser = new MetadataParser();
@@ -62,17 +64,33 @@ namespace SCLL
         public override void Process()
         {
             MetadataPackage package = parser.Parse(input);
+            bool isPackageFinalized = false;
+            
+            if (!(packages.ContainsValue(package)))
+                packages.Add(package.Id, package);
+            else
+                isPackageFinalized = packages[package.Id].Merge(package);
+
+
+            if (isPackageFinalized)
+            {
+                Stream packageData = packages[package.Id].ToStream();
+                DataType dataType = DataType.XmlShoutcast;
+
+                receiver.Accept(packageData, dataType);
+            }
         }
     }
 
     public abstract class DataProcessor : Processor
     {
-        protected Stream input;
-        protected Stream  output;
+        protected new IDataReceiver receiver;
+        
+        protected Stream output;
 
-        public DataProcessor()
+        public DataProcessor(IDataReceiver receiver) : base(null)
         {
-            
+            this.receiver = receiver;
         }
 
         public Stream Output
@@ -80,23 +98,29 @@ namespace SCLL
             get =>
                 output;
         }
-        
-        public Stream Input
-        {
-            set => 
-                input = value;
-        }
     }
+
     public abstract class Processor
     {
         protected IReceiver receiver;
-        
-        public Processor()
-        {
 
+        protected Stream input;
+
+        public Processor(IReceiver receiver)
+        {
+            this.receiver = receiver;
         }
 
         public abstract void Process();
+
+        public Stream Input
+        {
+            set =>
+                input = value;
+        }
+
+        protected void Accept() =>
+            receiver.Accept();
     }
 
 
