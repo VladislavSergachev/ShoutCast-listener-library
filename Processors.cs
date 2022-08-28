@@ -25,11 +25,11 @@ namespace SCLL
     /// General Ultravox-process unit. Its purposes are to provide MP3 stream and to notify client about received metadata 
     /// </summary>
 
-    public class AudioDataProcessor : Processor
+    public class AudioDataProcessor : DataProcessor
     {
         /// <param name="audioPayload">Stream containing Ultravox messages (Ultravox-server response)</param>
 
-        public AudioDataProcessor(Stream audioPayload) : base(audioPayload)
+        public AudioDataProcessor()
         {
             output = new QueueStream();
         }
@@ -48,35 +48,32 @@ namespace SCLL
         }
     }
 
-    public class MetadataProcessor : Processor
+    public class MetadataProcessor : DataProcessor
     {
         private Dictionary<UInt16, MetadataPackage> packages;
         private MetadataParser parser;
 
-        public MetadataProcessor(Stream metadataStream) : base(metadataStream)
+        public MetadataProcessor()
         {
             packages = new Dictionary<UInt16, MetadataPackage>();
-            parser = new MetadataParser(metadataStream);
+            parser = new MetadataParser();
         }
 
         public override void Process()
         {
-            MetadataPackage package = parser.Parse();
+            MetadataPackage package = parser.Parse(input);
         }
     }
 
-    public abstract class Processor
+    public abstract class DataProcessor : Processor
     {
         protected Stream input;
         protected Stream  output;
 
-        public Processor(Stream inputData)
+        public DataProcessor()
         {
-            this.input = inputData;
+            
         }
-
-        public abstract void Process();
-
 
         public Stream Output
         {
@@ -89,6 +86,17 @@ namespace SCLL
             set => 
                 input = value;
         }
+    }
+    public abstract class Processor
+    {
+        protected IReceiver receiver;
+        
+        public Processor()
+        {
+
+        }
+
+        public abstract void Process();
     }
 
 

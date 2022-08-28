@@ -6,26 +6,41 @@ namespace SCLL
     {
         private Message lastMessage;
         private Stream uvoxStream;
-        private Processor dataProcessor;
+        private QueueStream audioStream;
+        private Processor currentProcessor, audioProcessor, metadataProcessor;
         private MessageParser messageParser;
 
         public UltravoxHost(Stream input)
         {
             uvoxStream = input;
+            audioStream = new QueueStream();
+            
             messageParser = new MessageParser(input);
+
+            audioProcessor = new AudioDataProcessor();
+            metadataProcessor = new MetadataProcessor();
         }
 
         public void Process()
         {
             messageParser.FindNext();
-            lastMessage = messageParser.Parse();
+            lastMessage = messageParser.Parse(uvoxStream);
 
-            if (lastMessage.type == MessageType.DataMP3)
-                dataProcessor = new AudioDataProcessor(lastMessage.Payload);
+            if (lastMessage.type == DataType.DataMP3)
+                currentProcessor = audioProcessor;
             else
-                dataProcessor = new MetadataProcessor(lastMessage.Payload);
+                currentProcessor = metadataProcessor;
 
-            dataProcessor.Process();
+            currentProcessor.Input = lastMessage.Payload;
+            currentProcessor.Process();
         }
+
+        public QueueStream AudioStream
+        {
+            get =>
+                audioStream;
+        }
+
+
     }
 }

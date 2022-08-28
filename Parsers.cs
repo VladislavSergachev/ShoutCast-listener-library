@@ -29,16 +29,7 @@ namespace SCLL
 
     public abstract class Parser<ParsingResultType>
     {
-        public Stream InputStream;
-
-        /// <param name="inStream">Stream containing data for parsing</param>
-
-        public Parser(Stream inStream)
-        {
-            InputStream = inStream;
-        }
-
-        public abstract ParsingResultType Parse();
+        public abstract ParsingResultType Parse(Stream source);
     }
     
     
@@ -48,34 +39,36 @@ namespace SCLL
     /// </summary>
     public sealed class MessageParser : Parser<Message>
     {
+        private Stream inputStream;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="stream">Stream containing Ultravox-messages</param>
-        public MessageParser(Stream stream) : base(stream)
+        public MessageParser(Stream stream)
         {
-
+            inputStream = stream;
         }
 
         /// <summary>
         /// Parses current message found by <see cref="FindNext"/>
         /// </summary>
 
-        public override Message Parse()
+        public override Message Parse(Stream source)
         {
             Message message = new Message();
             byte[] msgHeader = new byte[5];
 
-            InputStream.Read(msgHeader);
+            source.Read(msgHeader);
 
             message.ResQos = msgHeader[0];
-            message.type = (MessageType)((msgHeader[1] << 8) + msgHeader[2]);
+            message.type = (DataType)((msgHeader[1] << 8) + msgHeader[2]);
             message.PayloadLength = (ushort)((msgHeader[3] << 8) + msgHeader[4]);
             message.Payload = new MemoryStream(message.PayloadLength);
 
             byte[] buffer = new byte[message.PayloadLength];
-            
-            InputStream.Read(buffer);
+
+            source.Read(buffer);
             message.Payload.Write(buffer);
 
             return message;
@@ -91,7 +84,7 @@ namespace SCLL
 
             while (!isSyncByte)
             {
-                int orderedByte = InputStream.ReadByte();      
+                int orderedByte = inputStream.ReadByte();      
                 isSyncByte = (orderedByte == Message.ULTRAVOX_SYNC_BYTE);
             }
         }
@@ -99,22 +92,17 @@ namespace SCLL
 
         public Stream UltravoxStream
         {
-            set => InputStream = value;
+            set => inputStream = value;
         }
     }
     public sealed class MetadataParser : Parser<MetadataPackage>
     {
-        public MetadataParser(Stream input) : base(input)
-        {
-            InputStream = input;
-        }
-
-        public override MetadataPackage Parse()
+        public override MetadataPackage Parse(Stream sourceStream)
         {
             UInt16 ID, Span, Order;
             byte[] packageInfo = new byte[6];
 
-            InputStream.Read(packageInfo);
+            sourceStream.Read(packageInfo);
 
             ID = (UInt16) ( (packageInfo[0] << 8) + packageInfo[1] );
             Span = (UInt16) ( (packageInfo[2] << 8) + packageInfo[3] );

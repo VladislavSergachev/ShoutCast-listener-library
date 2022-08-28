@@ -37,11 +37,11 @@ namespace ScllTests
             for (int m = 0; m < 3; m++)
             {
                 parser.FindNext();
-                messages.Add(parser.Parse());
+                messages.Add(parser.Parse(bareUvoxData));
             }
 
             foreach (Message message in messages)
-                correctMessages += (message.type == MessageType.XmlShoutcast) ? 1 : 0;
+                correctMessages += (message.type == DataType.XmlShoutcast) ? 1 : 0;
 
             Assert.True(correctMessages == 3);
         }
@@ -59,11 +59,11 @@ namespace ScllTests
             for (int m = 0; m < 3; m++)
             {
                 parser.FindNext();
-                messages.Add(parser.Parse());
+                messages.Add(parser.Parse(corruptedUvoxData));
             }
 
             foreach (Message message in messages)
-                correctMessages += (message.type == MessageType.XmlShoutcast) ? 1 : 0;
+                correctMessages += (message.type == DataType.XmlShoutcast) ? 1 : 0;
 
             corruptedUvoxData.Close();
 

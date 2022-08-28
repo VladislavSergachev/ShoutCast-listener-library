@@ -15,7 +15,7 @@ namespace ScllTests
         Message first = new Message
         {
             ResQos = 0,
-            type = MessageType.XmlShoutcast,
+            type = DataType.XmlShoutcast,
             PayloadLength = (ushort)payloadSecondPart.Length,
             Payload = new MemoryStream(payloadSecondPart)
         };
@@ -23,7 +23,7 @@ namespace ScllTests
         Message second = new Message
         {
             ResQos = 0,
-            type = MessageType.XmlShoutcast,
+            type = DataType.XmlShoutcast,
             PayloadLength = (ushort)payloadFirstPart.Length,
             Payload = new MemoryStream(payloadFirstPart)
         };

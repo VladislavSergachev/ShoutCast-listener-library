@@ -16,7 +16,7 @@ using System.IO;
 
 namespace SCLL
 {
-    public enum MessageType
+    public enum DataType
     {
         TemporaryInterruption = 0x2001,
         BroadcastTermination = 0x2003,
@@ -45,7 +45,7 @@ namespace SCLL
         public const int ULTRAVOX_TRAILING_BYTE = 0x00;
 
         public byte ResQos;
-        public MessageType type;
+        public DataType type;
         public Stream Payload;
         public ushort PayloadLength;
     }
