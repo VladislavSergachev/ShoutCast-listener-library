@@ -1,0 +1,9 @@
+lastMessage = parser.Parse(Input)
+
+if lastMessage.type is MP3
+    currentProcessor = audioProcessor
+else
+    currentProcessor = metadataProcessor
+
+currentProcessor.Input = this.Input
+currentProcessor.Process()

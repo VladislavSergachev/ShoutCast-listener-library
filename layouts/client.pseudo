@@ -1,0 +1,14 @@
+host.InputStream = UltravoxStream
+
+host.OnMetadata += SomeHandler()
+
+while(true)
+{
+    host.Process()
+    AppendStream(player.PlaybackStream, host.AudioStream)
+}
+
+func SomeHandler(Stream dataStream, DataType type)
+{
+    // handle metadata
+}
