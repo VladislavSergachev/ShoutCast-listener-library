@@ -13,36 +13,22 @@ namespace SCLL
         public readonly UInt16 Span;
         public readonly UInt16 Order;
 
-        public readonly DataType Type;
+        public DataType Type;
 
         
-        public MetadataPackage()
-        {
-            Parts = new List<Stream>();
-        }
-        
-        public MetadataPackage(UInt16 id, UInt16 span, UInt16 order, byte[] initialPayload, DataType type)
+        public MetadataPackage(UInt16 id, UInt16 span, UInt16 order, DataType type)
         {
             Id = id;
             Span = span;
             Order = order;
 
             Parts = new List<Stream>();
-            Parts.Add(new MemoryStream(initialPayload));
         }
 
-                                                                          // 0 - - - -
-                                                                          // - - 0 0 0
+
         public bool Merge(MetadataPackage package)
         {
-            uint elementsToAdd = (uint)Math.Abs((decimal)(package.Parts.Count - Parts.Count)) + package.Order;
-
-            for (int i = 0; i < elementsToAdd; i++)
-                Parts.Add(null);
-
-            Parts.InsertRange( (package.Order > 0 ? (package.Order - 1) : 0), package.Parts);
-            
-
+            Parts.InsertRange(package.Order, package.Parts);
             return (Parts.Count == Span);
         }
 

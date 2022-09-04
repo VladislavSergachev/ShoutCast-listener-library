@@ -3,8 +3,6 @@ using System.IO;
 
 namespace SCLL
 {
-    //TODO: Fix metadata parser 
-    
     public class UltravoxHost : IDataReceiver, IReceiver
     {
         private Message lastMessage;
@@ -13,14 +11,13 @@ namespace SCLL
         private Processor currentProcessor, audioProcessor, metadataProcessor;
         private MessageParser messageParser;
 
-        public event MetadataReceived OnMetadataReceived;
-        public delegate void MetadataReceived(UltravoxHost sender, MetadataReceivedArgs args);
-
+        public event EventHandler<MetadataReceivedArgs> OnMetadataReceived;
+        
         public UltravoxHost(Stream input)
         {
             uvoxStream = input;
             audioStream = new QueueStream();
-
+            
             messageParser = new MessageParser(input);
 
             audioProcessor = new AudioDataProcessor(this);
@@ -54,7 +51,17 @@ namespace SCLL
 
         public void Accept(Stream data, DataType type)
         {
-            
+            if(type == DataType.DataMP3)
+            {
+                byte[] buffer = new byte[data.Length];
+                data.Read(buffer);
+
+                audioStream.Write(buffer);
+            }
+            else
+            {
+                OnMetadataReceived?.Invoke(this, new MetadataReceivedArgs(type, data));
+            }
         }
     }
 }
