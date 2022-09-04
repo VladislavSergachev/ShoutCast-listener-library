@@ -100,15 +100,18 @@ namespace SCLL
         public override MetadataPackage Parse(Stream sourceStream)
         {
             UInt16 ID, Span, Order;
+            
             byte[] packageInfo = new byte[6];
+            byte[] packagePayload = new byte[sourceStream.Length - 6];
 
             sourceStream.Read(packageInfo);
+            sourceStream.Read(packagePayload);
 
             ID = (UInt16) ( (packageInfo[0] << 8) + packageInfo[1] );
             Span = (UInt16) ( (packageInfo[2] << 8) + packageInfo[3] );
             Order = (UInt16) ( (packageInfo[4] << 8) + packageInfo[5] );
 
-            return new MetadataPackage(ID, Span, Order, DataType.XmlShoutcast);
+            return new MetadataPackage(ID, Span, Order, packagePayload, DataType.XmlShoutcast);
         }
     }
 }

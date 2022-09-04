@@ -66,7 +66,7 @@ namespace SCLL
             MetadataPackage package = parser.Parse(input);
             bool isPackageFinalized = false;
             
-            if (!(packages.ContainsValue(package)))
+            if (!(packages.ContainsKey(package.Id)))
                 packages.Add(package.Id, package);
             else
                 isPackageFinalized = packages[package.Id].Merge(package);
