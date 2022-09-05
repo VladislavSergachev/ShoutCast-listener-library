@@ -39,17 +39,6 @@ namespace SCLL
     /// </summary>
     public sealed class MessageParser : Parser<Message>
     {
-        private Stream inputStream;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="stream">Stream containing Ultravox-messages</param>
-        public MessageParser(Stream stream)
-        {
-            inputStream = stream;
-        }
-
         /// <summary>
         /// Parses current message found by <see cref="FindNext"/>
         /// </summary>
@@ -70,6 +59,7 @@ namespace SCLL
 
             source.Read(buffer);
             message.Payload.Write(buffer);
+            message.Payload.Position = 0;
 
             return message;
         }
@@ -78,7 +68,7 @@ namespace SCLL
         /// Seeking to next (or first) message in stream. That message should further be parsed with <see cref="Parse"/>
         /// </summary>
         
-        public void FindNext()
+        public void FindNext(Stream inputStream)
         {
             bool isSyncByte = false;
 
@@ -88,27 +78,24 @@ namespace SCLL
                 isSyncByte = (orderedByte == Message.ULTRAVOX_SYNC_BYTE);
             }
         }
-
-
-        public Stream UltravoxStream
-        {
-            set => inputStream = value;
-        }
     }
     public sealed class MetadataParser : Parser<MetadataPackage>
     {
         public override MetadataPackage Parse(Stream sourceStream)
         {
             UInt16 ID, Span, Order;
+
             byte[] packageInfo = new byte[6];
+            byte[] packagePayload = new byte[sourceStream.Length - 6];
 
             sourceStream.Read(packageInfo);
+            sourceStream.Read(packagePayload);
 
             ID = (UInt16) ( (packageInfo[0] << 8) + packageInfo[1] );
             Span = (UInt16) ( (packageInfo[2] << 8) + packageInfo[3] );
             Order = (UInt16) ( (packageInfo[4] << 8) + packageInfo[5] );
 
-            return new MetadataPackage(ID, Span, Order, DataType.XmlShoutcast);
+            return new MetadataPackage(ID, Span, Order, packagePayload, DataType.XmlShoutcast);
         }
     }
 }

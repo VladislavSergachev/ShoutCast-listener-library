@@ -11,14 +11,15 @@ namespace SCLL
         private Processor currentProcessor, audioProcessor, metadataProcessor;
         private MessageParser messageParser;
 
-        public event EventHandler<MetadataReceivedArgs> OnMetadataReceived;
+        public delegate void OnMetaReceivedHandler(UltravoxHost sender, MetadataReceivedArgs args);
+        public event OnMetaReceivedHandler OnMetadataReceived;
         
         public UltravoxHost(Stream input)
         {
             uvoxStream = input;
             audioStream = new QueueStream();
             
-            messageParser = new MessageParser(input);
+            messageParser = new MessageParser();
 
             audioProcessor = new AudioDataProcessor(this);
             metadataProcessor = new MetadataProcessor(this);
@@ -26,7 +27,7 @@ namespace SCLL
 
         public void Process()
         {
-            messageParser.FindNext();
+            messageParser.FindNext(uvoxStream);
             lastMessage = messageParser.Parse(uvoxStream);
 
             if (lastMessage.type == DataType.DataMP3)
@@ -51,17 +52,11 @@ namespace SCLL
 
         public void Accept(Stream data, DataType type)
         {
-            if(type == DataType.DataMP3)
-            {
-                byte[] buffer = new byte[data.Length];
-                data.Read(buffer);
+            if (type == DataType.DataMP3)
+                data.CopyTo(audioStream, (int)data.Length);
 
-                audioStream.Write(buffer);
-            }
             else
-            {
                 OnMetadataReceived?.Invoke(this, new MetadataReceivedArgs(type, data));
-            }
         }
     }
 }

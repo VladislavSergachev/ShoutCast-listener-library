@@ -32,11 +32,11 @@ namespace ScllTests
             List<Message> messages = new List<Message>();
             bareUvoxData = new MemoryStream(BARE_DATA); // this file should contain 3 ordered Uvox messages (type XmlShoutcast, payload 10 bytes of any content)
 
-            MessageParser parser = new MessageParser(bareUvoxData);
+            MessageParser parser = new MessageParser();
 
             for (int m = 0; m < 3; m++)
             {
-                parser.FindNext();
+                parser.FindNext(bareUvoxData);
                 messages.Add(parser.Parse(bareUvoxData));
             }
 
@@ -54,11 +54,11 @@ namespace ScllTests
             List<Message> messages = new List<Message>();
             corruptedUvoxData = new MemoryStream(CORRUPTED_DATA); // this file should contain 3 ordered Uvox messages (type XmlShoutcast, payload 10 bytes of any content) with garbage bytes
 
-            MessageParser parser = new MessageParser(corruptedUvoxData);
+            MessageParser parser = new MessageParser();
 
             for (int m = 0; m < 3; m++)
             {
-                parser.FindNext();
+                parser.FindNext(corruptedUvoxData);
                 messages.Add(parser.Parse(corruptedUvoxData));
             }
 

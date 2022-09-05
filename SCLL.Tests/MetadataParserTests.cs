@@ -31,7 +31,7 @@ namespace ScllTests
         [Fact]
         public void ShouldReturnCorrectPackage()
         {
-            MetadataPackage template = new MetadataPackage(0x2b, 0x02, 0x02, DataType.XmlShoutcast);
+            MetadataPackage template = new MetadataPackage(0x2b, 0x02, 0x02, new byte[] {0x00, 0x00}, DataType.XmlShoutcast);
 
             parser = new MetadataParser();
             MetadataPackage pkg = parser.Parse(first.Payload);

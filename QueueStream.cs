@@ -86,6 +86,9 @@ namespace SCLL
             return bytesRead;
         }
 
+        public override int ReadByte() =>
+            _payload.Dequeue();
+
         /// <param name="buffer">Buffer to write from</param>
         /// <param name="offset">Position to begin writing from</param>
         /// <param name="count">Count of elements to be write</param>
@@ -102,6 +105,9 @@ namespace SCLL
             foreach(byte b in buffer)
                 _payload.Enqueue(b);
         }
+
+        public override void WriteByte(byte value) =>
+            _payload.Enqueue(value);
 
         public QueueStream(byte[] data)
         {

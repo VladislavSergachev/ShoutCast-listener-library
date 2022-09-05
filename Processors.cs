@@ -31,7 +31,7 @@ namespace SCLL
 
         public AudioDataProcessor(IDataReceiver receiver) : base(receiver)
         {
-            output = new QueueStream();
+            
         }
 
         /// <summary>
@@ -41,10 +41,10 @@ namespace SCLL
 
         public override void Process()
         {
-            byte[] rawAudioData = new byte[input.Length];
+            output = new MemoryStream((int)input.Length);
 
-            input.Read(rawAudioData);
-            output.Write(rawAudioData);
+            input.CopyTo(output, (int)input.Length);
+            output.Position = 0;
 
             receiver.Accept(output, DataType.DataMP3);
         }
@@ -61,20 +61,21 @@ namespace SCLL
             parser = new MetadataParser();
         }
 
-        public override void Process()
+        public override void Process() 
         {
-            MetadataPackage package = parser.Parse(input);
+            MetadataPackage package = parser.Parse(input); 
             bool isPackageFinalized = false;
             
-            if (!(packages.ContainsValue(package)))
-                packages.Add(package.Id, package);
-            else
-                isPackageFinalized = packages[package.Id].Merge(package);
-
+            if (!packages.ContainsKey(package.Id))
+            {
+                packages.Add(package.Id, new MetadataPackage(package.Id, package.Span, package.Order, package.Type));
+            }
+                
+            isPackageFinalized = packages[package.Id].Append(package);
 
             if (isPackageFinalized)
             {
-                Stream packageData = packages[package.Id].ToStream();
+                Stream packageData = packages[package.Id].GetAsSortedStream();
                 DataType dataType = DataType.XmlShoutcast;
 
                 receiver.Accept(packageData, dataType);
