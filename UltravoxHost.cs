@@ -50,7 +50,7 @@ namespace SCLL
 
         public void Accept(DataType type)
         {
-
+            OnDistPointSignalReceived.Invoke(this, new DistPointSignalReceivedArgs(type));
         }
 
         public void Accept(Stream data, DataType type)
