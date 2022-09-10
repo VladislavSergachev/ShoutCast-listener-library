@@ -41,9 +41,9 @@ namespace SCLL
 
         public override void Process()
         {
-            output = new MemoryStream((int)input.Length);
+            output = new MemoryStream((int)input.Payload.Length);
 
-            input.CopyTo(output, (int)input.Length);
+            input.Payload.CopyTo(output, (int)input.Payload.Length);
             output.Position = 0;
 
             receiver.Accept(output, DataType.DataMP3);
@@ -63,7 +63,7 @@ namespace SCLL
 
         public override void Process() 
         {
-            MetadataPackage package = parser.Parse(input); 
+            MetadataPackage package = parser.Parse(input.Payload); 
             bool isPackageFinalized = false;
             
             if (!packages.ContainsKey(package.Id))
@@ -76,14 +76,13 @@ namespace SCLL
             if (isPackageFinalized)
             {
                 Stream packageData = packages[package.Id].GetAsSortedStream();
-                DataType dataType = DataType.XmlShoutcast;
 
-                receiver.Accept(packageData, dataType);
+                receiver.Accept(packageData, input.type);
             }
         }
     }
 
-    public abstract class DataProcessor : Processor
+    public abstract class DataProcessor : MessageProcessor
     {
         protected new IDataReceiver receiver;
         
@@ -101,27 +100,24 @@ namespace SCLL
         }
     }
 
-    public abstract class Processor
+    public abstract class MessageProcessor
     {
         protected IReceiver receiver;
 
-        protected Stream input;
+        protected Message input;
 
-        public Processor(IReceiver receiver)
+        public MessageProcessor(IReceiver receiver)
         {
             this.receiver = receiver;
         }
 
         public abstract void Process();
 
-        public Stream Input
+        public Message Input
         {
             set =>
                 input = value;
         }
-
-        protected void Accept() =>
-            receiver.Accept();
     }
 
 

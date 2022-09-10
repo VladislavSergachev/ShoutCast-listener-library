@@ -21,14 +21,12 @@ namespace SCLL
     /// <summary>
     /// Contains information about message which has received
     /// </summary>
-    public class MetadataReceivedArgs : EventArgs
+    public class MetadataReceivedArgs : DistPointSignalReceivedArgs
     {
-        private DataType _msgType;
         private Stream _msgPayload;
 
-        public MetadataReceivedArgs(DataType msgType, Stream msgPayload)
+        public MetadataReceivedArgs(DataType msgType, Stream msgPayload) : base(msgType)
         {
-            _msgType = msgType;
             _msgPayload = msgPayload;
         }
 
@@ -37,16 +35,21 @@ namespace SCLL
             get =>
                 _msgPayload;
         }
+    }
+
+    public class DistPointSignalReceivedArgs : EventArgs
+    {
+        protected DataType _msgType;
+
+        public DistPointSignalReceivedArgs(DataType msgType)
+        {
+            _msgType = msgType;
+        }
 
         public DataType MessageType
         {
             get =>
               _msgType;
         }
-    }
-
-    public class DelegationEventArgs<TData> : EventArgs
-    {
-        public TData Data { get; set; }
     }
 }

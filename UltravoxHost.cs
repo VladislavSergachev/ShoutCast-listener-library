@@ -8,12 +8,15 @@ namespace SCLL
         private Message lastMessage;
         private Stream uvoxStream;
         private QueueStream audioStream;
-        private Processor currentProcessor, audioProcessor, metadataProcessor;
+        private MessageProcessor currentProcessor, audioProcessor, metadataProcessor;
         private MessageParser messageParser;
 
         public delegate void OnMetaReceivedHandler(UltravoxHost sender, MetadataReceivedArgs args);
         public event OnMetaReceivedHandler OnMetadataReceived;
-        
+
+        public delegate void OnDistPointSignalReceivedHandler(UltravoxHost sender, DistPointSignalReceivedArgs args);
+        public event OnDistPointSignalReceivedHandler OnDistPointSignalReceived;
+
         public UltravoxHost(Stream input)
         {
             uvoxStream = input;
@@ -35,7 +38,7 @@ namespace SCLL
             else
                 currentProcessor = metadataProcessor;
 
-            currentProcessor.Input = lastMessage.Payload;
+            currentProcessor.Input = lastMessage;
             currentProcessor.Process();
         }
 
@@ -45,7 +48,7 @@ namespace SCLL
                 audioStream;
         }
 
-        public void Accept()
+        public void Accept(DataType type)
         {
 
         }

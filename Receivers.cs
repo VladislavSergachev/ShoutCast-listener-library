@@ -4,7 +4,7 @@ namespace SCLL
 {
     public interface IReceiver
     {
-        public abstract void Accept();
+        public abstract void Accept(DataType type);
     }    
          
     public interface IDataReceiver
