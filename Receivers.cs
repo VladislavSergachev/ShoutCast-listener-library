@@ -2,13 +2,8 @@
 
 namespace SCLL
 {
-    public interface IReceiver
+    public interface IReceiver<ExpectingDataType>
     {
-        public abstract void Accept(DataType type);
+        public abstract void Accept(ExpectingDataType data);
     }    
-         
-    public interface IDataReceiver
-    {    
-        public void Accept(Stream data, DataType type);
-    }
 }

@@ -25,43 +25,31 @@ namespace SCLL
     /// General Ultravox-process unit. Its purposes are to provide MP3 stream and to notify client about received metadata 
     /// </summary>
 
-    public class AudioDataProcessor : DataProcessor
+    public class XmlProcessor : DataProcessor<MetadataPackage, SongInfo>
     {
-        /// <param name="audioPayload">Stream containing Ultravox messages (Ultravox-server response)</param>
-
-        public AudioDataProcessor(IDataReceiver receiver) : base(receiver)
+        public XmlProcessor(UltravoxHost host) : base(host)
         {
-            
+
         }
 
-        /// <summary>
-        /// Finds next Ultravox-message in the stream and parses it. If it`s MP3 data <see cref="MP3Stream"/> is appended with this data. 
-        /// In ....
-        /// </summary>
-
-        public override void Process()
+        public override void Accept(MetadataPackage input)
         {
-            output = new MemoryStream((int)input.Payload.Length);
 
-            input.Payload.CopyTo(output, (int)input.Payload.Length);
-            output.Position = 0;
-
-            receiver.Accept(output, DataType.DataMP3);
         }
     }
-
-    public class MetadataProcessor : DataProcessor
+    
+    public class MetadataProcessor : DataProcessor<Message, MetadataPackage>
     {
         private Dictionary<UInt16, MetadataPackage> packages;
         private MetadataParser parser;
 
-        public MetadataProcessor(IDataReceiver receiver) : base(receiver)
+        public MetadataProcessor(XmlProcessor receiver) : base(receiver)
         {
             packages = new Dictionary<UInt16, MetadataPackage>();
             parser = new MetadataParser();
         }
 
-        public override void Process() 
+        public override void Accept(Message input) 
         {
             MetadataPackage package = parser.Parse(input.Payload); 
             bool isPackageFinalized = false;
@@ -75,23 +63,24 @@ namespace SCLL
 
             if (isPackageFinalized)
             {
-                Stream packageData = packages[package.Id].GetAsSortedStream();
-
-                receiver.Accept(packageData, input.type);
+                receiver.Accept(packages[package.Id]);
             }
         }
     }
 
-    public abstract class DataProcessor : MessageProcessor
+    public abstract class DataProcessor<ExpectingInputType, TargetReceiverType> : IReceiver<ExpectingInputType>
     {
-        protected new IDataReceiver receiver;
+        protected IReceiver<TargetReceiverType> receiver;
         
+        protected Message input;
         protected Stream output;
 
-        public DataProcessor(IDataReceiver receiver) : base(null)
+        public DataProcessor(IReceiver<TargetReceiverType> targetReceiver)
         {
-            this.receiver = receiver;
+            this.receiver = targetReceiver;
         }
+
+        public abstract void Accept(ExpectingInputType input);
 
         public Stream Output
         {
@@ -99,26 +88,4 @@ namespace SCLL
                 output;
         }
     }
-
-    public abstract class MessageProcessor
-    {
-        protected IReceiver receiver;
-
-        protected Message input;
-
-        public MessageProcessor(IReceiver receiver)
-        {
-            this.receiver = receiver;
-        }
-
-        public abstract void Process();
-
-        public Message Input
-        {
-            set =>
-                input = value;
-        }
-    }
-
-
 }

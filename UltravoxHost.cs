@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SCLL
 {
-    public class UltravoxHost : IDataReceiver, IReceiver
+    public class UltravoxHost : IReceiver<Stream>, IReceiver<SongInfo>
     {
         private Message lastMessage;
         private Stream uvoxStream;
         private QueueStream audioStream;
-        private MessageProcessor currentProcessor, audioProcessor, metadataProcessor;
+        private MetadataProcessor metadataProcessor;
+        private XmlProcessor xmlProcessor;
         private MessageParser messageParser;
+        private SongInfo currentSongInfo;
 
         public delegate void OnMetaReceivedHandler(UltravoxHost sender, MetadataReceivedArgs args);
         public event OnMetaReceivedHandler OnMetadataReceived;
@@ -21,11 +24,11 @@ namespace SCLL
         {
             uvoxStream = input;
             audioStream = new QueueStream();
-            
+
             messageParser = new MessageParser();
 
-            audioProcessor = new AudioDataProcessor(this);
-            metadataProcessor = new MetadataProcessor(this);
+            xmlProcessor = new XmlProcessor(this);
+            metadataProcessor = new MetadataProcessor(xmlProcessor);
         }
 
         public void Process()
@@ -34,12 +37,16 @@ namespace SCLL
             lastMessage = messageParser.Parse(uvoxStream);
 
             if (lastMessage.type == DataType.DataMP3)
-                currentProcessor = audioProcessor;
-            else
-                currentProcessor = metadataProcessor;
+            {
+                byte[] buffer = new byte[lastMessage.Payload.Length];
+                lastMessage.Payload.Read(buffer);
 
-            currentProcessor.Input = lastMessage;
-            currentProcessor.Process();
+                audioStream.Write(buffer);
+            }
+            else
+            {
+                metadataProcessor.Accept(lastMessage);
+            }
         }
 
         public QueueStream AudioStream
@@ -48,18 +55,11 @@ namespace SCLL
                 audioStream;
         }
 
-        public void Accept(DataType type)
-        {
-            OnDistPointSignalReceived.Invoke(this, new DistPointSignalReceivedArgs(type));
-        }
+        public void Accept(SongInfo info) =>
+            currentSongInfo = info;
 
-        public void Accept(Stream data, DataType type)
-        {
-            if (type == DataType.DataMP3)
-                data.CopyTo(audioStream, (int)data.Length);
+        public void Accept(Stream data) =>
+             data.CopyTo(audioStream, (int)data.Length);
 
-            else
-                OnMetadataReceived?.Invoke(this, new MetadataReceivedArgs(type, data));
-        }
     }
 }
