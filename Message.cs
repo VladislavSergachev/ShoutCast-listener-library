@@ -3,19 +3,19 @@ using System.IO;
 
 namespace SCLL
 {
-    public class BinaryMessage
+    public class BaseMessage
     {
-        public Stream _payload;
+        public readonly Stream Payload;
         private MessageInfo _info;
 
-        public BinaryMessage(MessageInfo info, Stream Payload)
+        public BaseMessage(MessageInfo info, Stream Payload)
         {
             _info = info;
-            _payload = Payload;
+            this.Payload = Payload;
         }
     }
 
-    public class MetadataMessage : BinaryMessage
+    public class MetadataMessage : BaseMessage
     {
         public ushort _packageId;
         public ushort _packageIndex;

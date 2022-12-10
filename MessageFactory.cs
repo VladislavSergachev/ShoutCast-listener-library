@@ -12,7 +12,7 @@ namespace SCLL
             _info = info;
         }
 
-        public abstract BinaryMessage CreateMessage(Stream inputStream);
+        public abstract BaseMessage CreateMessage(Stream inputStream);
     }
 
 
@@ -23,7 +23,7 @@ namespace SCLL
 
         }
 
-        public override BinaryMessage CreateMessage(Stream inputStream)
+        public override BaseMessage CreateMessage(Stream inputStream)
         {
             Stream payload = new MemoryStream(_info.PayloadLength);
 
@@ -33,7 +33,7 @@ namespace SCLL
             payload.Write(buffer);
             payload.Position = 0;
 
-            return new BinaryMessage(_info, payload);
+            return new BaseMessage(_info, payload);
         }
     }
 
@@ -45,7 +45,7 @@ namespace SCLL
 
         }
 
-        public override BinaryMessage CreateMessage(Stream inputStream)
+        public override BaseMessage CreateMessage(Stream inputStream)
         {
             Stream payload = new MemoryStream((_info.PayloadLength - 6));
 
