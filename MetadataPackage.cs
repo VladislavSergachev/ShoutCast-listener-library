@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SCLL
 {
-    class MetadataPackage
+    public class MetadataPackage
     {
         // id, span , current, messages
 

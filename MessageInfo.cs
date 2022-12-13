@@ -41,7 +41,7 @@ namespace SCLL
             input.Read(msgHeader); // reads message header skipping Res/QoS
 
             msgClass = (byte)(msgHeader[0] >> 4);
-            type = (ushort)((msgHeader[0] << 8) + msgHeader[1]);
+            type = (ushort) ( ( (msgHeader[0] << 8) + msgHeader[1]) - (msgClass << 12) );
 
             payloadLength = (ushort)((msgHeader[2] << 8) + msgHeader[3]);
         }
