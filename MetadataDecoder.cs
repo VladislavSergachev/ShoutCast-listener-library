@@ -35,11 +35,20 @@ namespace SCLL
         public virtual void Parse() => throw new NotImplementedException();
     }
 
-    public class XmlSongInfo : ContentInfo
+    public class MinimalSongInfo : ContentInfo
     {
+        private string tit2Value;
+
+        public MinimalSongInfo() : base()
+        {
+
+        }
+        
         public override void Parse()
         {
-            
+            tit2Value = this.xmlSchema["TIT2"].Value;
         }
+
+        public string Title { get { return tit2Value; } }
     }
 }
