@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace SCLL
 {
 
@@ -9,6 +7,19 @@ namespace SCLL
         private ushort type;
         private ushort payloadLength;
         public const byte ULTRAVOX_SYNC_BYTE = 0x5A;
+
+        public MessageInfo()
+        {
+
+        }
+
+
+        public MessageInfo(byte mClass, ushort type, ushort payloadLength)
+        {
+            this.msgClass = mClass;
+            this.type = type;
+            this.payloadLength = payloadLength;
+        }
 
         public byte Class
         {

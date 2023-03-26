@@ -1,6 +1,3 @@
-using System.IO;
-
-
 namespace SCLL
 {  
     public abstract class AbstractMessageFactory

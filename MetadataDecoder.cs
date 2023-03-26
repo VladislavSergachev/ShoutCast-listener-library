@@ -1,54 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.Xml;
 
 namespace SCLL
 {
     public class ContentInfo
     {
-        protected XmlDocument xmlSchema;
+        protected MemoryStream data;
         
-        public ContentInfo() 
+        public ContentInfo()
         {
-            xmlSchema = new XmlDocument();
+
+        }
+        
+        public ContentInfo(MetadataPackage package) 
+        {
+            data = new MemoryStream((int)package.TotalPayloadSize);
+            this.Read(package);
         }
 
         public void Read(MetadataPackage package)
         {
-            string xmlString = string.Empty;
-            
             for (uint i = 0; i < package.Span; i++)
-            {
-                byte[] buffer = new byte[package[i].Payload.Length];
-                package[i].Payload.Read(buffer);
-
-                xmlString += Encoding.UTF8.GetString(buffer);
-            }
-
-            xmlSchema.Load(xmlString);
-            this.Parse();
+                package[i].Payload.CopyTo(data);
         }
 
-        public virtual void Parse() => throw new NotImplementedException();
+        public virtual bool Parse() => throw new NotImplementedException();
     }
 
     public class MinimalSongInfo : ContentInfo
     {
-        private string tit2Value;
+        protected string? titleValue;
+        protected string titleTagName = "TIT2";
+        protected XmlDocument xmlRoot;
 
-        public MinimalSongInfo() : base()
+        public MinimalSongInfo(MetadataPackage package) : base(package)
         {
-
+            xmlRoot = new XmlDocument();
+            xmlRoot.Load(data);
         }
         
-        public override void Parse()
+        public override bool Parse()
         {
-            tit2Value = this.xmlSchema["TIT2"].Value;
+            try
+            {
+                titleValue = xmlRoot[titleTagName].Value;
+            }
+            catch (NullReferenceException e)
+            {
+                return false;
+            }
+
+            return true;
         }
 
-        public string Title { get { return tit2Value; } }
+        public string Title { get { return titleValue; } }
     }
 }

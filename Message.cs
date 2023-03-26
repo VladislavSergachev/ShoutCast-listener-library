@@ -1,16 +1,13 @@
-using System.IO;
-
-
 namespace SCLL
 {
     public class BaseMessage
     {
         public readonly Stream Payload;
-        private MessageInfo _info;
+        public readonly MessageInfo Info;
 
         public BaseMessage(MessageInfo info, Stream Payload)
         {
-            _info = info;
+            Info = info;
             this.Payload = Payload;
         }
     }

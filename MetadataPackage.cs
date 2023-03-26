@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SCLL
+﻿namespace SCLL
 {
     public class MetadataPackage
     {
@@ -34,12 +28,12 @@ namespace SCLL
 
         public void Append(MetadataMessage metadata)
         { 
-            _messages[metadata._packageIndex] = metadata;
+            _messages[metadata._packageIndex - 1] = metadata;
             TotalPayloadSize += (ulong)metadata.Payload.Length;
         }
 
         public bool IsComplete => _messages.Length == Span;
         
-        public MetadataMessage this[uint index] => _messages[index];
+        public MetadataMessage this[uint index] => _messages[index - 1];
     }
 }
