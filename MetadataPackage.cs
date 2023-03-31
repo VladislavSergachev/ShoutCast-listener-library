@@ -28,7 +28,7 @@
 
         public void Append(MetadataMessage metadata)
         { 
-            _messages[metadata._packageIndex - 1] = metadata;
+            _messages[(metadata._packageIndex - 1)] = metadata;
             TotalPayloadSize += (ulong)metadata.Payload.Length;
         }
 

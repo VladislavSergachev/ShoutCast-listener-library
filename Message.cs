@@ -9,6 +9,7 @@ namespace SCLL
         {
             Info = info;
             this.Payload = Payload;
+            this.Payload.Position = 0;
         }
     }
 

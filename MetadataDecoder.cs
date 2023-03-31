@@ -7,50 +7,38 @@ namespace SCLL
     {
         protected MemoryStream data;
         
-        public ContentInfo()
-        {
-
-        }
-        
         public ContentInfo(MetadataPackage package) 
         {
             data = new MemoryStream((int)package.TotalPayloadSize);
-            this.Read(package);
-        }
-
-        public void Read(MetadataPackage package)
-        {
-            for (uint i = 0; i < package.Span; i++)
+            for (uint i = 1; i <= package.Span; i++)
                 package[i].Payload.CopyTo(data);
+
+            data.Position = 0;
         }
 
-        public virtual bool Parse() => throw new NotImplementedException();
+        public virtual void Parse() => throw new NotImplementedException();
     }
 
-    public class MinimalSongInfo : ContentInfo
+    public class XmlInfo : ContentInfo
     {
         protected string? titleValue;
         protected string titleTagName = "TIT2";
-        protected XmlDocument xmlRoot;
+        protected readonly XmlDocument xmlRoot;
+        protected readonly XmlElement metadataSection;
 
-        public MinimalSongInfo(MetadataPackage package) : base(package)
+        public XmlInfo(MetadataPackage package) : base(package)
         {
             xmlRoot = new XmlDocument();
             xmlRoot.Load(data);
+
+            metadataSection = xmlRoot["metadata"];
+
+            data.Position = 0;
         }
         
-        public override bool Parse()
+        public override void Parse()
         {
-            try
-            {
-                titleValue = xmlRoot[titleTagName].Value;
-            }
-            catch (NullReferenceException e)
-            {
-                return false;
-            }
-
-            return true;
+            titleValue = metadataSection[titleTagName]?.InnerText;
         }
 
         public string Title { get { return titleValue; } }
