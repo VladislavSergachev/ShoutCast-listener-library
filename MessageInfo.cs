@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace SCLL
 {
 
@@ -9,6 +7,19 @@ namespace SCLL
         private ushort type;
         private ushort payloadLength;
         public const byte ULTRAVOX_SYNC_BYTE = 0x5A;
+
+        public MessageInfo()
+        {
+
+        }
+
+
+        public MessageInfo(byte mClass, ushort type, ushort payloadLength)
+        {
+            this.msgClass = mClass;
+            this.type = type;
+            this.payloadLength = payloadLength;
+        }
 
         public byte Class
         {
@@ -41,7 +52,7 @@ namespace SCLL
             input.Read(msgHeader); // reads message header skipping Res/QoS
 
             msgClass = (byte)(msgHeader[0] >> 4);
-            type = (ushort)((msgHeader[0] << 8) + msgHeader[1]);
+            type = (ushort) ( ( (msgHeader[0] << 8) + msgHeader[1]) - (msgClass << 12) );
 
             payloadLength = (ushort)((msgHeader[2] << 8) + msgHeader[3]);
         }
